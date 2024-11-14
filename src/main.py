@@ -7,16 +7,20 @@ from moviepy.editor import VideoFileClip
 import math
 import boto3
 from botocore.exceptions import NoCredentialsError
+from dotenv import load_dotenv
+import shutil
 
 ALLOWED_EXTENSIONS = {'mp4'}
 
+load_dotenv()
 app = Flask(__name__)
 
 s3 = boto3.client('s3',
-    region_name='us-east-1',
-    aws_access_key_id='test',
-    aws_secret_access_key='test',
-    endpoint_url='http://localhost:4566')
+    region_name=f"{os.getenv("REGION_NAME")}",
+    aws_access_key_id=f"{os.getenv("AWS_ACCESS_KEY_ID")}",
+    aws_secret_access_key=f"{os.getenv("AWS_SECRET_ACCES_KEY")}",
+    endpoint_url=f"{os.getenv("ENDPOINT_URL")}"
+)
 
 @app.route("/")
 def hello_world():
@@ -97,8 +101,8 @@ def upload_to_s3(file_name, bucket, object_name=None):
     except NoCredentialsError:
         print("Credentials not available.")
 
-@app.route("/create_thumbnails/<s3_url_to_save>", methods=["GET"])
-def create_thumbnails(s3_url_to_save):
+@app.route("/create_thumbnails/<s3_name>/<s3_url_to_save>", methods=["GET"])
+def create_thumbnails(s3_name, s3_url_to_save):
     if 'Content-Type' not in request.headers and request.headers['Content-Type'] != 'video/mp4':
         return {"error": "Content-Type header not set to video/mp4"}, 400
     video_data = request.data
@@ -119,17 +123,24 @@ def create_thumbnails(s3_url_to_save):
     # getting video data
     width, height, duration = getVideoData(tempFolder)
     
+    interval = 113
     # creating storyboard
-    createStoryboard(os.path.join(current_dir, tempFolder), width, height, 113)
+    createStoryboard(os.path.join(current_dir, tempFolder), width, height, interval)
 
     # creating thumbnails
-    createThumbnails(os.path.join(current_dir, tempFolder), width, height, duration, 113)
+    createThumbnails(os.path.join(current_dir, tempFolder), width, height, duration, interval)
 
     # uploading to s3
-    upload_to_s3(os.path.join(current_dir, tempFolder, "thumbnails.vtt"), "my-first-bucket", f"{s3_url_to_save}/thumbnails.vtt")
-    upload_to_s3(os.path.join(current_dir, tempFolder, "storyboard.jpg"), "my-first-bucket", f"{s3_url_to_save}/storyboard.jpg")
+    try:
+        upload_to_s3(os.path.join(current_dir, tempFolder, "thumbnails.vtt"), f"{s3_name}", f"{s3_url_to_save}/thumbnails.vtt")
+        upload_to_s3(os.path.join(current_dir, tempFolder, "storyboard.jpg"), f"{s3_name}", f"{s3_url_to_save}/storyboard.jpg")
 
-    # rm temp dir
-    
+        shutil.rmtree(os.path.join(current_dir, tempFolder))
+    except:
+        shutil.rmtree(os.path.join(current_dir, tempFolder))
+        return {"error": "Failed to upload to S3"}, 500
 
-    return {"tempFolder" : tempFolder, "s3_url_to_save" : s3_url_to_save}
+    return {"s3_url_to_save" : s3_url_to_save}, 200
+
+if __name__ == "__main__":
+    app.run(debug=True, port=os.getenv("PORT", 5000))
