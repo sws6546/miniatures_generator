@@ -1,8 +1,7 @@
 import os
 import random
 import string
-from flask import Flask, request, redirect, url_for
-from werkzeug.utils import secure_filename
+from flask import Flask, request
 from moviepy.editor import VideoFileClip
 import math
 import boto3
