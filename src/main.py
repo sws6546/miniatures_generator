@@ -139,7 +139,7 @@ def create_thumbnails(s3_name, s3_url_to_save):
         shutil.rmtree(os.path.join(current_dir, tempFolder))
         return {"error": "Failed to upload to S3"}, 500
 
-    return {"s3_url_to_save" : s3_url_to_save}, 200
+    return {"message": "Successfully created files in S3"}, 200
 
 if __name__ == "__main__":
-    app.run(debug=True, port=os.getenv("PORT", 5000))
+    app.run(host="0.0.0.0", port=os.getenv("PORT", 5000))
