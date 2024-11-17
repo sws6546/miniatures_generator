@@ -122,7 +122,7 @@ def create_thumbnails(s3_name, s3_url_to_save):
     # getting video data
     width, height, duration = getVideoData(tempFolder)
     
-    interval = 113
+    interval = int(os.getenv("INTERVAL"))
     # creating storyboard
     createStoryboard(os.path.join(current_dir, tempFolder), width, height, interval)
 
