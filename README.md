@@ -2,7 +2,6 @@ Po wysłaniu zapytania http na `/create_thumbnails/<s3_name>/<s3_url_to_save>` i
 
 Aby działało należy dodać plik `.env`:
 ```
-PORT=<eg. 5000>
 REGION_NAME=<eg. us-east-1>
 AWS_ACCES_KEY_ID=<id key>
 AWS_SECRET_ACCES_KEY=<secret key>
@@ -12,9 +11,9 @@ INTERVAL=<co ile sekund ma się pojawiać nowy obrazek>
 
 Plik `generator.py` jest z projektu: `https://github.com/flavioribeiro/video-thumbnail-generator`
 
-Można także zmienić w `Dockerfile` liczbę workerów, oraz port:
+Można także zmienić w `Dockerfile` liczbę workerów:
 ```
-CMD [ "gunicorn", "--bind", "0.0.0.0:<port>", "src.main:app", "-w", "<liczba>" ]
+CMD [ "gunicorn", "--bind", "0.0.0.0:5000", "src.main:app", "-w", "<liczba>" ]
 ```
 https://docs.gunicorn.org/en/latest/run.html
 https://flask.palletsprojects.com/en/stable/deploying/gunicorn/
