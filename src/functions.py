@@ -3,7 +3,6 @@ import random
 import math
 import os
 from moviepy.editor import VideoFileClip
-from main import s3
 from botocore.exceptions import NoCredentialsError
 import shutil
 
@@ -65,7 +64,7 @@ def createThumbnails(tempFolder, width, height, duration, interval):
             f.write(f"storyboard.jpg#xywh={x},{y},{width},{height}\n")
             f.write("\n")
 
-def upload_to_s3(file_name, bucket, object_name=None):
+def upload_to_s3(s3, file_name, bucket, object_name=None):
     if object_name is None:
         object_name = file_name  # If no custom object name is provided, use file_name
 
@@ -79,8 +78,6 @@ def upload_to_s3(file_name, bucket, object_name=None):
         print("Credentials not available.")
 
 
-
-
 def create_temp_folder(tempFolder):
     current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     while os.path.exists(os.path.join(current_dir, tempFolder)):
@@ -92,11 +89,11 @@ def save_video(video_data, tempFolder):
     with open(os.path.join(current_dir, tempFolder, "video.mp4"), "wb") as f:
         f.write(video_data)
 
-def save_files_in_s3(tempFolder, s3_name, s3_url_to_save):
+def save_files_in_s3(s3, tempFolder, s3_name, s3_url_to_save):
     current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     try:
-        upload_to_s3(os.path.join(current_dir, tempFolder, "thumbnails.vtt"), f"{s3_name}", f"{s3_url_to_save}/thumbnails.vtt")
-        upload_to_s3(os.path.join(current_dir, tempFolder, "storyboard.jpg"), f"{s3_name}", f"{s3_url_to_save}/storyboard.jpg")
+        upload_to_s3(s3, os.path.join(current_dir, tempFolder, "thumbnails.vtt"), f"{s3_name}", f"{s3_url_to_save}/thumbnails.vtt")
+        upload_to_s3(s3, os.path.join(current_dir, tempFolder, "storyboard.jpg"), f"{s3_name}", f"{s3_url_to_save}/storyboard.jpg")
 
         shutil.rmtree(os.path.join(current_dir, tempFolder))
         return True

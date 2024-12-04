@@ -9,11 +9,18 @@ ENDPOINT_URL=<endpoint url>
 INTERVAL=<co ile sekund ma się pojawiać nowy obrazek>
 ```
 
+Domyślnie aplikacja uruchamia się na porcie 5000, aby to zmienić należy w `docker-compose.yaml` wpisać inny port:
+```
+ports:
+    - "<PORT>:5000"
+```
+
 Plik `generator.py` jest z projektu: `https://github.com/flavioribeiro/video-thumbnail-generator`
 
 Można także zmienić w `Dockerfile` liczbę workerów:
 ```
 CMD [ "gunicorn", "--bind", "0.0.0.0:5000", "src.main:app", "-w", "<liczba>" ]
 ```
+
 https://docs.gunicorn.org/en/latest/run.html
 https://flask.palletsprojects.com/en/stable/deploying/gunicorn/

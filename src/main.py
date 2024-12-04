@@ -2,7 +2,7 @@ import os
 from flask import Flask, request
 import boto3
 from dotenv import load_dotenv
-from functions import *
+from src.functions import *
 
 load_dotenv()
 app = Flask(__name__)
@@ -40,7 +40,7 @@ def create_thumbnails(s3_name, s3_url_to_save):
     createThumbnails(os.path.join(current_dir, tempFolder), width, height, duration, interval)
 
     # uploading to s3
-    saved = save_files_in_s3(tempFolder, s3_name, s3_url_to_save)
+    saved = save_files_in_s3(s3, tempFolder, s3_name, s3_url_to_save)
     if not saved:
         return {"error": "Failed to upload to S3"}, 500
 
